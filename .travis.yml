@@ -29,6 +29,7 @@ matrix:
     - bash <(curl -s https://codecov.io/bash)
 
   - dist: trusty
+    if: tag IS present
     rust: stable
     addons:
       apt:
@@ -46,6 +47,7 @@ matrix:
     <<: *DEPLOY_TO_GITHUB
 
   - os: osx
+    if: tag IS present
     rust: stable
     install:
     - rustup target add i686-apple-darwin

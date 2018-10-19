@@ -16,9 +16,10 @@ mod printer;
 use failure::{Error, ResultExt};
 use lint::RuleSet;
 use printer::Printer;
+use std::env;
 use std::fs::File;
 use std::io::Read;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process;
 use structopt::{clap, StructOpt};
 
@@ -66,7 +67,7 @@ pub fn main() {
             }
         }
         Err(x) => {
-            println!("{}", x);
+            println!("Error: {}", x);
             2
         }
     };
@@ -75,8 +76,10 @@ pub fn main() {
 }
 
 pub fn run_opt(opt: &Opt) -> Result<bool, Error> {
-    let mut f = File::open(&opt.rule)
-        .with_context(|_| format!("failed to open: '{}'", opt.rule.to_string_lossy()))?;
+    let rule = search_rule(&opt.rule)?;
+
+    let mut f = File::open(&rule)
+        .with_context(|_| format!("failed to open: '{}'", rule.to_string_lossy()))?;
     let mut s = String::new();
     let _ = f.read_to_string(&mut s);
     let rule: RuleSet = toml::from_str(&s)
@@ -86,6 +89,17 @@ pub fn run_opt(opt: &Opt) -> Result<bool, Error> {
     let pass = Printer::print(checked, opt.simple, opt.verbose)?;
 
     Ok(pass)
+}
+
+fn search_rule(rule: &Path) -> Result<PathBuf, Error> {
+    let current = env::current_dir()?;
+    for dir in current.ancestors() {
+        let candidate = dir.join(rule);
+        if candidate.exists() {
+            return Ok(candidate);
+        }
+    }
+    Err(format_err!("rule not found: '{}'", rule.to_string_lossy()))
 }
 
 // -------------------------------------------------------------------------------------------------

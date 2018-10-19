@@ -38,7 +38,7 @@ matrix:
     - rustup target add x86_64-unknown-linux-musl
     - rustup target add i686-unknown-linux-musl
     script:
-    - export "LONG_VERSION=\"${TRAVIS_TAG} ( rustc: ${TRAVIS_RUST_VERSION} )\""
+    - export LONG_VERSION="${TRAVIS_TAG} ( rustc:${TRAVIS_RUST_VERSION} )"
     - cargo build --release --target=x86_64-unknown-linux-musl
     - cargo build --release --target=i686-unknown-linux-musl
     - zip -j ${BIN_NAME}-${TRAVIS_TAG}-x86_64-lnx.zip target/x86_64-unknown-linux-musl/release/${BIN_NAME}
@@ -50,7 +50,7 @@ matrix:
     install:
     - rustup target add i686-apple-darwin
     script:
-    - export "LONG_VERSION=\"${TRAVIS_TAG} ( rustc: ${TRAVIS_RUST_VERSION} )\""
+    - export LONG_VERSION="${TRAVIS_TAG} ( rustc:${TRAVIS_RUST_VERSION} )"
     - cargo build --release --target=x86_64-apple-darwin
     - cargo build --release --target=i686-apple-darwin
     - zip -j ${BIN_NAME}-${TRAVIS_TAG}-x86_64-mac.zip target/x86_64-apple-darwin/release/${BIN_NAME}
@@ -62,7 +62,7 @@ matrix:
     install:
     - rustup target add i686-pc-windows-msvc
     script:
-    - export "LONG_VERSION=\"${TRAVIS_TAG} ( rustc: ${TRAVIS_RUST_VERSION} )\""
+    - export LONG_VERSION="${TRAVIS_TAG} ( rustc:${TRAVIS_RUST_VERSION} )"
     - cargo build --release --target=x86_64-pc-windows-msvc
     - cargo build --release --target=i686-pc-windows-msvc
     - zip -j ${BIN_NAME}-${TRAVIS_TAG}-x86_64-win.zip target/x86_64-pc-windows-msvc/release/${BIN_NAME}.exe

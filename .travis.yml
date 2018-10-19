@@ -37,15 +37,15 @@ matrix:
     - make release_lnx
     <<: *DEPLOY_TO_GITHUB
 
-  - dist: osx
+  - os: osx
     rust: stable
     install:
     - rustup target add i686-apple-darwin
     script:
-    - make release_osx
+    - make release_mac
     <<: *DEPLOY_TO_GITHUB
 
-  - dist: windows
+  - os: windows
     rust: stable
     install:
     - rustup target add i686-pc-windows-msvc

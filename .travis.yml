@@ -1,6 +1,10 @@
 language: rust
 sudo: false
 
+env:
+  global:
+  - BIN_NAME=flexlint
+
 DEPLOY_TO_GITHUB: &DEPLOY_TO_GITHUB
   deploy:
     provider: releases
@@ -18,10 +22,10 @@ matrix:
   - dist: trusty
     rust: stable
     script:
-    - make test
+    - cargo test
     - rustup install nightly
     - RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo +nightly install cargo-tarpaulin
-    - cargo +nightly tarpaulin --out Xml -- --test-threads=1
+    - cargo +nightly tarpaulin --out Xml
     - bash <(curl -s https://codecov.io/bash)
 
   - dist: trusty
@@ -34,7 +38,11 @@ matrix:
     - rustup target add x86_64-unknown-linux-musl
     - rustup target add i686-unknown-linux-musl
     script:
-    - make release_lnx
+    - export LONG_VERSION="${TRAVIS_TAG} ( rustc: ${TRAVIS_RUST_VERSION} )"
+    - cargo build --release --target=x86_64-unknown-linux-musl
+    - cargo build --release --target=i686-unknown-linux-musl
+    - zip -j ${BIN_NAME}-${TRAVIS_TAG}-x86_64-lnx.zip target/x86_64-unknown-linux-musl/release/${BIN_NAME}
+    - zip -j ${BIN_NAME}-${TRAVIS_TAG}-i686-lnx.zip target/i686-unknown-linux-musl/release/${BIN_NAME}
     <<: *DEPLOY_TO_GITHUB
 
   - os: osx
@@ -42,7 +50,11 @@ matrix:
     install:
     - rustup target add i686-apple-darwin
     script:
-    - make release_mac
+    - export LONG_VERSION="${TRAVIS_TAG} ( rustc: ${TRAVIS_RUST_VERSION} )"
+    - cargo build --release --target=x86_64-apple-darwin
+    - cargo build --release --target=i686-apple-darwin
+    - zip -j ${BIN_NAME}-${TRAVIS_TAG}-x86_64-mac.zip target/x86_64-apple-darwin/release/${BIN_NAME}
+    - zip -j ${BIN_NAME}-${TRAVIS_TAG}-i686-mac.zip target/i686-apple-darwin/release/${BIN_NAME}
     <<: *DEPLOY_TO_GITHUB
 
   - os: windows
@@ -50,6 +62,9 @@ matrix:
     install:
     - rustup target add i686-pc-windows-msvc
     script:
-    - choco install make
-    - make release_win
+    - export LONG_VERSION="${TRAVIS_TAG} ( rustc: ${TRAVIS_RUST_VERSION} )"
+    - cargo build --release --target=x86_64-pc-windows-msvc
+    - cargo build --release --target=i686-pc-windows-msvc
+    - zip -j ${BIN_NAME}-${TRAVIS_TAG}-x86_64-win.zip target/x86_64-pc-windows-msvc/release/${BIN_NAME}.exe
+    - zip -j ${BIN_NAME}-${TRAVIS_TAG}-i686-win.zip target/i686-pc-windows-msvc/release/${BIN_NAME}.exe
     <<: *DEPLOY_TO_GITHUB

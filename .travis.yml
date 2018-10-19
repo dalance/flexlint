@@ -1,40 +1,55 @@
 language: rust
+sudo: false
 
-os:
-- linux
-- windows
-- osx
+DEPLOY_TO_GITHUB: &DEPLOY_TO_GITHUB
+  deploy:
+    provider: releases
+    api_key:
+      secure: PImMsQzU3DWG3sWizCCwUgkUzVoj3EFsJrDnBwCfhVoVtmxjQwUvPdIL5xXTq6ry+dQ+M0MM1uRJuwyoKmIlqjLgxil+8E11kuGZlySdMUm7fVr77s9hsPR2vT+ArYiCjwNbLYwlaFxVBsDXnCTuBfNgWLOUdzWnwdY7SE+mGOe7UIFs4Ig8+mUJHzCqf49v61qpRSeEF4eDaFWWrEvFx90Mc58IjqjjnZUylDZe36IFncwm+w67fekOTOcEIN4+aesuH52dwUG8RKHDZ9/x/L2bAu5UAK8KEYjONxrqA6YPI4jgIO/O0ZvV8kPHSRHRw/CDRSe9TnZuRivuuqHL3uC8xRqedK7bLEutWjoXKU8whPX1sfIg6DAw8OSdS5iYvcPpxhRkPQA4ocGahInFfCwEC7ANaDxDaqpxHtgU4vmirs1SiMfy95XoQju2noSUivCHMWmqK5EyI22boyP8ylKtKt3827nYWZ2qJG6SB1GPDdvTndgarXVfXINAlpl+2UcuKkGxSeN3kK4BHuIFng8L0I4wzFGqu/jSV6AwjGgNJAeTMtlopKupIUwoerQt01Tf6GVlSkP2dxVuGm+heF/rVSXZ2ONNE6bsrhWsLs0HZJF+8pgv9A2olO5/sI59g9gGE5DmLXQncChsHAdiF+S6g2MiUyVrHjdS+bneU1U=
+    file: flexlint*.zip
+    file_glob: true
+    skip_cleanup: true
+    on:
+      repo: dalance/flexlint
+      tags: true
 
-before_script:
-- if [[ $TRAVIS_OS_NAME == "linux"   ]]; then rustup target add x86_64-unknown-linux-musl; fi
-- if [[ $TRAVIS_OS_NAME == "linux"   ]]; then sudo apt-get -qq update; fi
-- if [[ $TRAVIS_OS_NAME == "linux"   ]]; then sudo apt-get -qq install musl-tools libssl-dev; fi
-  #- if [[ $TRAVIS_OS_NAME == "windows" ]]; then choco install make; fi
+matrix:
+  include:
+  - dist: trusty
+    rust: stable
+    script:
+    - make test
+    - rustup install nightly
+    - RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo +nightly install cargo-tarpaulin
+    - cargo +nightly tarpaulin --out Xml -- --test-threads=1
+    - bash <(curl -s https://codecov.io/bash)
 
-script:
-- make test
-- if [[ $TRAVIS_OS_NAME == "linux"   ]]; then make release_lnx; fi
-- if [[ $TRAVIS_OS_NAME == "windows" ]]; then choco; make release_win; fi
-- if [[ $TRAVIS_OS_NAME == "osx"     ]]; then make release_mac; fi
+  - dist: trusty
+    rust: stable
+    addons:
+      apt:
+        packages:
+        - musl-tools
+    install:
+    - rustup target add x86_64-unknown-linux-musl
+    - rustup target add i686-unknown-linux-musl
+    script:
+    - make release_lnx
+    <<: *DEPLOY_TO_GITHUB
 
-after_success: |
-  if [[ $TRAVIS_OS_NAME == "linux" ]]; then
-      rustup install nightly
-      RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo +nightly install cargo-tarpaulin
-      # Uncomment the following line for coveralls.io
-      # cargo tarpaulin --ciserver travis-ci --coveralls $TRAVIS_JOB_ID
+  - dist: osx
+    rust: stable
+    install:
+    - rustup target add i686-apple-darwin
+    script:
+    - make release_osx
+    <<: *DEPLOY_TO_GITHUB
 
-      cargo +nightly tarpaulin --out Xml -- --test-threads=1
-      bash <(curl -s https://codecov.io/bash)
-  fi
-
-deploy:
-  provider: releases
-  api_key:
-    secure: PImMsQzU3DWG3sWizCCwUgkUzVoj3EFsJrDnBwCfhVoVtmxjQwUvPdIL5xXTq6ry+dQ+M0MM1uRJuwyoKmIlqjLgxil+8E11kuGZlySdMUm7fVr77s9hsPR2vT+ArYiCjwNbLYwlaFxVBsDXnCTuBfNgWLOUdzWnwdY7SE+mGOe7UIFs4Ig8+mUJHzCqf49v61qpRSeEF4eDaFWWrEvFx90Mc58IjqjjnZUylDZe36IFncwm+w67fekOTOcEIN4+aesuH52dwUG8RKHDZ9/x/L2bAu5UAK8KEYjONxrqA6YPI4jgIO/O0ZvV8kPHSRHRw/CDRSe9TnZuRivuuqHL3uC8xRqedK7bLEutWjoXKU8whPX1sfIg6DAw8OSdS5iYvcPpxhRkPQA4ocGahInFfCwEC7ANaDxDaqpxHtgU4vmirs1SiMfy95XoQju2noSUivCHMWmqK5EyI22boyP8ylKtKt3827nYWZ2qJG6SB1GPDdvTndgarXVfXINAlpl+2UcuKkGxSeN3kK4BHuIFng8L0I4wzFGqu/jSV6AwjGgNJAeTMtlopKupIUwoerQt01Tf6GVlSkP2dxVuGm+heF/rVSXZ2ONNE6bsrhWsLs0HZJF+8pgv9A2olO5/sI59g9gGE5DmLXQncChsHAdiF+S6g2MiUyVrHjdS+bneU1U=
-  file: flexlint*.zip
-  file_glob: true
-  skip_cleanup: true
-  on:
-    repo: dalance/flexlint
-    tags: true
+  - dist: windows
+    rust: stable
+    install:
+    - rustup target add i686-pc-windows-msvc
+    script:
+    - choco install make
+    - make release_win
+    <<: *DEPLOY_TO_GITHUB

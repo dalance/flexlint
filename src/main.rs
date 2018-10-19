@@ -42,6 +42,10 @@ pub struct Opt {
     )]
     pub rule: PathBuf,
 
+    /// Show results by simple format
+    #[structopt(short = "s", long = "simple")]
+    pub simple: bool,
+
     /// Show verbose message
     #[structopt(short = "v", long = "verbose")]
     pub verbose: bool,
@@ -79,7 +83,7 @@ pub fn run_opt(opt: &Opt) -> Result<bool, Error> {
         .with_context(|_| format!("failed to parse toml: '{}'", opt.rule.to_string_lossy()))?;
 
     let checked = rule.check()?;
-    let pass = Printer::print(checked, opt.verbose)?;
+    let pass = Printer::print(checked, opt.simple, opt.verbose)?;
 
     Ok(pass)
 }

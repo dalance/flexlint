@@ -111,6 +111,7 @@ impl Rule {
         let mut ret = Vec::new();
         for m in self.pattern.find_iter(&src) {
             let pat_start = m.start();
+            let pat_end = m.end();
             let mut pass = true;
             let mut skip = false;
 
@@ -146,7 +147,8 @@ impl Rule {
 
             let checked = Checked {
                 path: entry.clone().to_path_buf(),
-                pos: pat_start,
+                beg: pat_start,
+                end: pat_end,
                 state: state,
                 name: self.name.clone(),
                 hint: self.hint.clone(),
@@ -165,7 +167,8 @@ impl Rule {
 #[derive(Debug)]
 pub struct Checked {
     pub path: PathBuf,
-    pub pos: usize,
+    pub beg: usize,
+    pub end: usize,
     pub state: CheckedState,
     pub name: String,
     pub hint: String,

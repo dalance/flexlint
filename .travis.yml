@@ -1,81 +1,75 @@
 language: rust
-os: windows
-rust: stable
-script:
-  - cargo build --release --target=x86_64-pc-windows-msvc
+sudo: false
 
-#language: rust
-#sudo: false
-#
-#env:
-#  global:
-#    - BIN_NAME=flexlint
-#
-#DEPLOY_TO_GITHUB: &DEPLOY_TO_GITHUB
-#  deploy:
-#    provider: releases
-#    api_key:
-#      secure: PImMsQzU3DWG3sWizCCwUgkUzVoj3EFsJrDnBwCfhVoVtmxjQwUvPdIL5xXTq6ry+dQ+M0MM1uRJuwyoKmIlqjLgxil+8E11kuGZlySdMUm7fVr77s9hsPR2vT+ArYiCjwNbLYwlaFxVBsDXnCTuBfNgWLOUdzWnwdY7SE+mGOe7UIFs4Ig8+mUJHzCqf49v61qpRSeEF4eDaFWWrEvFx90Mc58IjqjjnZUylDZe36IFncwm+w67fekOTOcEIN4+aesuH52dwUG8RKHDZ9/x/L2bAu5UAK8KEYjONxrqA6YPI4jgIO/O0ZvV8kPHSRHRw/CDRSe9TnZuRivuuqHL3uC8xRqedK7bLEutWjoXKU8whPX1sfIg6DAw8OSdS5iYvcPpxhRkPQA4ocGahInFfCwEC7ANaDxDaqpxHtgU4vmirs1SiMfy95XoQju2noSUivCHMWmqK5EyI22boyP8ylKtKt3827nYWZ2qJG6SB1GPDdvTndgarXVfXINAlpl+2UcuKkGxSeN3kK4BHuIFng8L0I4wzFGqu/jSV6AwjGgNJAeTMtlopKupIUwoerQt01Tf6GVlSkP2dxVuGm+heF/rVSXZ2ONNE6bsrhWsLs0HZJF+8pgv9A2olO5/sI59g9gGE5DmLXQncChsHAdiF+S6g2MiUyVrHjdS+bneU1U=
-#    file: flexlint*.zip
-#    file_glob: true
-#    skip_cleanup: true
-#    on:
-#      repo: dalance/flexlint
-#      tags: true
-#
-#matrix:
-#  include:
-#    - dist: trusty
-#      rust: stable
-#      script:
-#        - cargo test
-#        - rustup install nightly
-#        - RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo +nightly install cargo-tarpaulin
-#        - cargo +nightly tarpaulin --out Xml
-#        - bash <(curl -s https://codecov.io/bash)
-#
-#    - dist: trusty
-#      if: tag IS present
-#      rust: stable
-#      addons:
-#        apt:
-#          packages:
-#            - musl-tools
-#      install:
-#        - rustup target add x86_64-unknown-linux-musl
-#        - rustup target add i686-unknown-linux-musl
-#      script:
-#        - export LONG_VERSION="${TRAVIS_TAG} ( rustc:${TRAVIS_RUST_VERSION} )"
-#        - cargo build --release --target=x86_64-unknown-linux-musl
-#        - cargo build --release --target=i686-unknown-linux-musl
-#      after_success:
-#        - zip -j ${BIN_NAME}-${TRAVIS_TAG}-x86_64-lnx.zip target/x86_64-unknown-linux-musl/release/${BIN_NAME}
-#        - zip -j ${BIN_NAME}-${TRAVIS_TAG}-i686-lnx.zip target/i686-unknown-linux-musl/release/${BIN_NAME}
-#      <<: *DEPLOY_TO_GITHUB
-#
-#    - os: osx
-#      if: tag IS present
-#      rust: stable
-#      install:
-#        - rustup target add i686-apple-darwin
-#      script:
-#        - export LONG_VERSION="${TRAVIS_TAG} ( rustc:${TRAVIS_RUST_VERSION} )"
-#        - cargo build --release --target=x86_64-apple-darwin
-#        - cargo build --release --target=i686-apple-darwin
-#      after_success:
-#        - zip -j ${BIN_NAME}-${TRAVIS_TAG}-x86_64-mac.zip target/x86_64-apple-darwin/release/${BIN_NAME}
-#        - zip -j ${BIN_NAME}-${TRAVIS_TAG}-i686-mac.zip target/i686-apple-darwin/release/${BIN_NAME}
-#      <<: *DEPLOY_TO_GITHUB
-#
-#    - os: windows
-#      rust: stable
-#      install:
-#        - rustup target add i686-pc-windows-msvc
-#      script:
-#        - export LONG_VERSION="${TRAVIS_TAG} ( rustc:${TRAVIS_RUST_VERSION} )"
-#        - cargo build --release --target=x86_64-pc-windows-msvc
-#        - cargo build --release --target=i686-pc-windows-msvc
-#      after_success:
-#        - 7za a ${BIN_NAME}-${TRAVIS_TAG}-x86_64-win.zip target/x86_64-pc-windows-msvc/release/${BIN_NAME}.exe
-#        - 7za a ${BIN_NAME}-${TRAVIS_TAG}-i686-win.zip target/i686-pc-windows-msvc/release/${BIN_NAME}.exe
-#      <<: *DEPLOY_TO_GITHUB
+env:
+  global:
+    - BIN_NAME=flexlint
+
+DEPLOY_TO_GITHUB: &DEPLOY_TO_GITHUB
+  deploy:
+    provider: releases
+    api_key:
+      secure: PImMsQzU3DWG3sWizCCwUgkUzVoj3EFsJrDnBwCfhVoVtmxjQwUvPdIL5xXTq6ry+dQ+M0MM1uRJuwyoKmIlqjLgxil+8E11kuGZlySdMUm7fVr77s9hsPR2vT+ArYiCjwNbLYwlaFxVBsDXnCTuBfNgWLOUdzWnwdY7SE+mGOe7UIFs4Ig8+mUJHzCqf49v61qpRSeEF4eDaFWWrEvFx90Mc58IjqjjnZUylDZe36IFncwm+w67fekOTOcEIN4+aesuH52dwUG8RKHDZ9/x/L2bAu5UAK8KEYjONxrqA6YPI4jgIO/O0ZvV8kPHSRHRw/CDRSe9TnZuRivuuqHL3uC8xRqedK7bLEutWjoXKU8whPX1sfIg6DAw8OSdS5iYvcPpxhRkPQA4ocGahInFfCwEC7ANaDxDaqpxHtgU4vmirs1SiMfy95XoQju2noSUivCHMWmqK5EyI22boyP8ylKtKt3827nYWZ2qJG6SB1GPDdvTndgarXVfXINAlpl+2UcuKkGxSeN3kK4BHuIFng8L0I4wzFGqu/jSV6AwjGgNJAeTMtlopKupIUwoerQt01Tf6GVlSkP2dxVuGm+heF/rVSXZ2ONNE6bsrhWsLs0HZJF+8pgv9A2olO5/sI59g9gGE5DmLXQncChsHAdiF+S6g2MiUyVrHjdS+bneU1U=
+    file: flexlint*.zip
+    file_glob: true
+    skip_cleanup: true
+    on:
+      repo: dalance/flexlint
+      tags: true
+
+matrix:
+  include:
+    - dist: trusty
+      rust: stable
+      script:
+        - cargo test
+        - rustup install nightly
+        - RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo +nightly install cargo-tarpaulin
+        - cargo +nightly tarpaulin --out Xml
+        - bash <(curl -s https://codecov.io/bash)
+
+    - dist: trusty
+      if: tag IS present
+      rust: stable
+      addons:
+        apt:
+          packages:
+            - musl-tools
+      install:
+        - rustup target add x86_64-unknown-linux-musl
+        - rustup target add i686-unknown-linux-musl
+      script:
+        - export LONG_VERSION="${TRAVIS_TAG} ( rustc:${TRAVIS_RUST_VERSION} )"
+        - cargo build --release --target=x86_64-unknown-linux-musl
+        - cargo build --release --target=i686-unknown-linux-musl
+      after_success:
+        - zip -j ${BIN_NAME}-${TRAVIS_TAG}-x86_64-lnx.zip target/x86_64-unknown-linux-musl/release/${BIN_NAME}
+        - zip -j ${BIN_NAME}-${TRAVIS_TAG}-i686-lnx.zip target/i686-unknown-linux-musl/release/${BIN_NAME}
+      <<: *DEPLOY_TO_GITHUB
+
+    - os: osx
+      if: tag IS present
+      rust: stable
+      install:
+        - rustup target add i686-apple-darwin
+      script:
+        - export LONG_VERSION="${TRAVIS_TAG} ( rustc:${TRAVIS_RUST_VERSION} )"
+        - cargo build --release --target=x86_64-apple-darwin
+        - cargo build --release --target=i686-apple-darwin
+      after_success:
+        - zip -j ${BIN_NAME}-${TRAVIS_TAG}-x86_64-mac.zip target/x86_64-apple-darwin/release/${BIN_NAME}
+        - zip -j ${BIN_NAME}-${TRAVIS_TAG}-i686-mac.zip target/i686-apple-darwin/release/${BIN_NAME}
+      <<: *DEPLOY_TO_GITHUB
+
+    - os: windows
+      rust: stable
+      install:
+        - rustup target add i686-pc-windows-msvc
+      script:
+        - export LONG_VERSION="${TRAVIS_TAG} ( rustc:${TRAVIS_RUST_VERSION} )"
+        - cargo build --release --target=x86_64-pc-windows-msvc
+        - cargo build --release --target=i686-pc-windows-msvc
+      after_success:
+        - 7za a ${BIN_NAME}-${TRAVIS_TAG}-x86_64-win.zip target/x86_64-pc-windows-msvc/release/${BIN_NAME}.exe
+        - 7za a ${BIN_NAME}-${TRAVIS_TAG}-i686-win.zip target/i686-pc-windows-msvc/release/${BIN_NAME}.exe
+      <<: *DEPLOY_TO_GITHUB

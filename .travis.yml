@@ -21,10 +21,11 @@ matrix:
   include:
     - dist: trusty
       rust: stable
-      script:
-        - cargo test
+      install:
         - rustup install nightly
         - RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo +nightly install cargo-tarpaulin
+      script:
+        - cargo test
         - cargo +nightly tarpaulin --out Xml
         - bash <(curl -s https://codecov.io/bash)
 

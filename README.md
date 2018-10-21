@@ -50,7 +50,7 @@ name      =  # name of rule
 pattern   =  # check pattern by regexp
 required  =  # required pattern by regexp [Optional]
 forbidden =  # forbidden pattern by regexp [Optional]
-ignore    =  # ignore pattern by regexp
+ignore    =  # ignore pattern by regexp [Optional]
 hint      =  # hint message
 globs     =  # file glob
 ```

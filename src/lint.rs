@@ -15,6 +15,7 @@ pub struct RuleSet {
 }
 
 impl RuleSet {
+    #[cfg_attr(tarpaulin, skip)]
     pub fn check(&self) -> Result<Vec<Checked>, Error> {
         let mut ret = Vec::new();
         for rule in &self.rules {
@@ -191,9 +192,7 @@ mod tests {
     use super::*;
     use toml;
 
-    #[test]
-    fn test_deserialize_ruleset() {
-        let toml = r#"
+    static TOML_SAMPLE: &'static str = r#"
 [[rules]]
 name      = "aaa"
 pattern   = 'bbb'
@@ -204,7 +203,42 @@ hint      = "fff"
 globs     = ["ggg"]
         "#;
 
-        let rule: RuleSet = toml::from_str(&toml).unwrap();
+    static C_RULE: &'static str = r#"
+[[rules]]
+name      = "'if' with brace"
+pattern   = '(?m)(^|[\t ])if\s'
+forbidden = '(?m)(^|[\t ])if\s[^;{]*$'
+ignore    = '(/\*/?([^/]|[^*]/)*\*/)|(//.*\n)'
+hint      = "multiline 'if' must have brace"
+globs     = ["**/*.c", "**/*.cpp"]
+        "#;
+
+    static C_SRC: &'static str = r#"
+int test() {
+    int hoge = 0;
+
+    if ( hoge )
+        return 1;
+
+    if ( hoge ) return 1;
+
+    if ( hoge ) {
+        return 1;
+    }
+
+    // if ( hoge )
+    //     return 1;
+
+    /*
+    if ( hoge )
+        return 1;
+    */
+}
+        "#;
+
+    #[test]
+    fn test_deserialize_ruleset() {
+        let rule: RuleSet = toml::from_str(&TOML_SAMPLE).unwrap();
         assert_eq!(rule.rules[0].name, "aaa");
         assert_eq!(
             format!("{:?}", rule.rules[0].pattern),
@@ -224,5 +258,38 @@ globs     = ["ggg"]
         );
         assert_eq!(rule.rules[0].hint, "fff");
         assert_eq!(rule.rules[0].globs[0], "ggg");
+    }
+
+    #[test]
+    fn test_gen_ignore() {
+        let rule: RuleSet = toml::from_str(&C_RULE).unwrap();
+        let ignore = rule.rules[0].gen_ignore(&C_SRC);
+        assert_eq!(ignore.len(), 3);
+        assert_eq!(ignore[0], (142, 157));
+        assert_eq!(ignore[1], (161, 178));
+        assert_eq!(ignore[2], (183, 226));
+    }
+
+    #[test]
+    fn test_gen_checked() {
+        let rule: RuleSet = toml::from_str(&C_RULE).unwrap();
+        let ignore = rule.rules[0].gen_ignore(&C_SRC);
+        let checked = rule.rules[0].gen_checked(&PathBuf::from(""), &C_SRC, &ignore);
+        assert_eq!(checked.len(), 5);
+        assert_eq!(checked[0].state, CheckedState::Fail);
+        assert_eq!(checked[0].beg, 36);
+        assert_eq!(checked[0].end, 40);
+        assert_eq!(checked[1].state, CheckedState::Pass);
+        assert_eq!(checked[1].beg, 71);
+        assert_eq!(checked[1].end, 75);
+        assert_eq!(checked[2].state, CheckedState::Pass);
+        assert_eq!(checked[2].beg, 98);
+        assert_eq!(checked[2].end, 102);
+        assert_eq!(checked[3].state, CheckedState::Skip);
+        assert_eq!(checked[3].beg, 144);
+        assert_eq!(checked[3].end, 148);
+        assert_eq!(checked[4].state, CheckedState::Skip);
+        assert_eq!(checked[4].beg, 189);
+        assert_eq!(checked[4].end, 193);
     }
 }

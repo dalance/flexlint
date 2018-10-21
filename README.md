@@ -44,7 +44,7 @@ So you can put rule file (`.flexlint.toml`) on the repository root like `.gitign
 
 Rule definition is below:
 
-```.flexlint.toml
+```toml
 [[rules]]
 name      =  # name of rule
 pattern   =  # check pattern by regexp
@@ -62,7 +62,7 @@ If the `pattern` matched point is included in the `ignore` matched range, check 
 
 The example for `if` with brace of C/C++ is below:
 
-```.flexlint.toml
+```toml
 [[rules]]
 name      = "'if' with brace"
 pattern   = '(?m)(^|[\t ])if\s'

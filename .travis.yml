@@ -62,7 +62,6 @@ matrix:
       <<: *DEPLOY_TO_GITHUB
 
     - os: windows
-      if: tag IS present
       rust: stable
       install:
         - rustup target add i686-pc-windows-msvc
@@ -71,6 +70,6 @@ matrix:
         - cargo build --release --target=x86_64-pc-windows-msvc
         - cargo build --release --target=i686-pc-windows-msvc
       after_success:
-        - 7za a ${BIN_NAME}-${TRAVIS_TAG}-x86_64-win.zip target/x86_64-pc-windows-msvc/release/${BIN_NAME}.exe
-        - 7za a ${BIN_NAME}-${TRAVIS_TAG}-i686-win.zip target/i686-pc-windows-msvc/release/${BIN_NAME}.exe
+        - 7z a ${BIN_NAME}-${TRAVIS_TAG}-x86_64-win.zip target/x86_64-pc-windows-msvc/release/${BIN_NAME}.exe
+        - 7z a ${BIN_NAME}-${TRAVIS_TAG}-i686-win.zip target/i686-pc-windows-msvc/release/${BIN_NAME}.exe
       <<: *DEPLOY_TO_GITHUB

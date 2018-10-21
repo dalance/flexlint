@@ -56,6 +56,7 @@ pub struct Opt {
 // Main
 // -------------------------------------------------------------------------------------------------
 
+#[cfg_attr(tarpaulin, skip)]
 pub fn main() {
     let opt = Opt::from_args();
     let exit_code = match run_opt(&opt) {
@@ -75,6 +76,7 @@ pub fn main() {
     process::exit(exit_code);
 }
 
+#[cfg_attr(tarpaulin, skip)]
 pub fn run_opt(opt: &Opt) -> Result<bool, Error> {
     let rule = search_rule(&opt.rule)?;
 
@@ -91,6 +93,7 @@ pub fn run_opt(opt: &Opt) -> Result<bool, Error> {
     Ok(pass)
 }
 
+#[cfg_attr(tarpaulin, skip)]
 fn search_rule(rule: &Path) -> Result<PathBuf, Error> {
     let current = env::current_dir()?;
     for dir in current.ancestors() {

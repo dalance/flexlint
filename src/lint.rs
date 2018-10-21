@@ -78,6 +78,7 @@ mod serde_option_regex {
 }
 
 impl Rule {
+    #[cfg_attr(tarpaulin, skip)]
     pub fn check(&self) -> Result<Vec<Checked>, Error> {
         let mut ret = Vec::new();
         for g in &self.globs {
@@ -184,3 +185,44 @@ pub enum CheckedState {
 // -------------------------------------------------------------------------------------------------
 // Test
 // -------------------------------------------------------------------------------------------------
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use toml;
+
+    #[test]
+    fn test_deserialize_ruleset() {
+        let toml = r#"
+[[rules]]
+name      = "aaa"
+pattern   = 'bbb'
+required  = 'ccc'
+forbidden = 'ddd'
+ignore    = 'eee'
+hint      = "fff"
+globs     = ["ggg"]
+        "#;
+
+        let rule: RuleSet = toml::from_str(&toml).unwrap();
+        assert_eq!(rule.rules[0].name, "aaa");
+        assert_eq!(
+            format!("{:?}", rule.rules[0].pattern),
+            format!("{:?}", Regex::new("bbb").unwrap())
+        );
+        assert_eq!(
+            format!("{:?}", rule.rules[0].required),
+            format!("{:?}", Some(Regex::new("ccc").unwrap()))
+        );
+        assert_eq!(
+            format!("{:?}", rule.rules[0].forbidden),
+            format!("{:?}", Some(Regex::new("ddd").unwrap()))
+        );
+        assert_eq!(
+            format!("{:?}", rule.rules[0].ignore),
+            format!("{:?}", Some(Regex::new("eee").unwrap()))
+        );
+        assert_eq!(rule.rules[0].hint, "fff");
+        assert_eq!(rule.rules[0].globs[0], "ggg");
+    }
+}

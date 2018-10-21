@@ -16,6 +16,7 @@ static CHAR_LF: u8 = 0x0a;
 pub struct Printer;
 
 impl Printer {
+    #[cfg_attr(tarpaulin, skip)]
     pub fn print(checked: Vec<Checked>, simple: bool, verbose: bool) -> Result<bool, Error> {
         let path_checked = Printer::collect_by_path(checked);
 
@@ -52,6 +53,7 @@ impl Printer {
         ret
     }
 
+    #[cfg_attr(tarpaulin, skip)]
     fn print_simple(
         path_checked: &Vec<(PathBuf, Vec<Checked>)>,
         verbose: bool,
@@ -128,6 +130,7 @@ impl Printer {
         Ok(all_pass)
     }
 
+    #[cfg_attr(tarpaulin, skip)]
     fn print_pretty(
         path_checked: &Vec<(PathBuf, Vec<Checked>)>,
         verbose: bool,

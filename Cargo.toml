@@ -1,6 +1,6 @@
 [package]
 name = "flexlint"
-version = "0.1.1"
+version = "0.1.2-pre"
 authors = ["dalance <dalance@gmail.com>"]
 repository = "https://github.com/dalance/flexlint"
 license = "MIT"

@@ -23,7 +23,7 @@ matrix:
       rust: stable
       install:
         - rustup install nightly
-        - RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo +nightly install cargo-tarpaulin
+        - RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo +nightly install --force cargo-tarpaulin
       script:
         - cargo test
         - cargo +nightly tarpaulin --out Xml

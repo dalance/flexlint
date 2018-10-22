@@ -236,6 +236,43 @@ int test() {
 }
         "#;
 
+    static VERILOG_RULE: &'static str = r#"
+[[rules]]
+name     = "'if' with 'begin'"
+pattern  = '(?m)(^|[\t ])if\s'
+required = '(?m)(^|[\t ])if\s*\([^)]*\)\s*begin'
+ignore   = '(/\*/?([^/]|[^*]/)*\*/)|(//.*\n)'
+hint     = "'if' statement must have 'begin'"
+globs    = ["**/*.v", "**/*.sv"]
+        "#;
+
+    static VERILOG_SRC: &'static str = r#"
+module test ();
+
+    wire clk;
+    wire rst;
+
+    reg reg1;
+    always @ ( posedge clk ) begin
+        reg1 <= 0;
+    end
+
+    reg reg2;
+    always_ff @ ( posedge clk or negedge rst ) begin
+        if ( rst )
+            reg2 <= 0;
+        else
+            reg2 <= 1;
+    end
+
+    reg reg3;
+    always_comb begin
+        reg3 = reg0 | reg1;
+    end
+
+endmodule
+        "#;
+
     #[test]
     fn test_deserialize_ruleset() {
         let rule: RuleSet = toml::from_str(&TOML_SAMPLE).unwrap();
@@ -271,7 +308,18 @@ int test() {
     }
 
     #[test]
-    fn test_gen_checked() {
+    fn test_gen_checked_with_required() {
+        let rule: RuleSet = toml::from_str(&VERILOG_RULE).unwrap();
+        let ignore = rule.rules[0].gen_ignore(&VERILOG_SRC);
+        let checked = rule.rules[0].gen_checked(&PathBuf::from(""), &VERILOG_SRC, &ignore);
+        assert_eq!(checked.len(), 1);
+        assert_eq!(checked[0].state, CheckedState::Fail);
+        assert_eq!(checked[0].beg, 198);
+        assert_eq!(checked[0].end, 202);
+    }
+
+    #[test]
+    fn test_gen_checked_with_forbidden() {
         let rule: RuleSet = toml::from_str(&C_RULE).unwrap();
         let ignore = rule.rules[0].gen_ignore(&C_SRC);
         let checked = rule.rules[0].gen_checked(&PathBuf::from(""), &C_SRC, &ignore);

@@ -241,3 +241,58 @@ impl Printer {
 // -------------------------------------------------------------------------------------------------
 // Test
 // -------------------------------------------------------------------------------------------------
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_collect_by_path() {
+        let mut checked = Vec::new();
+
+        checked.push(Checked {
+            path: PathBuf::from("bbb"),
+            beg: 100,
+            end: 200,
+            state: CheckedState::Pass,
+            name: String::from(""),
+            hint: String::from(""),
+        });
+
+        checked.push(Checked {
+            path: PathBuf::from("aaa"),
+            beg: 10,
+            end: 20,
+            state: CheckedState::Pass,
+            name: String::from(""),
+            hint: String::from(""),
+        });
+
+        checked.push(Checked {
+            path: PathBuf::from("aaa"),
+            beg: 0,
+            end: 10,
+            state: CheckedState::Pass,
+            name: String::from(""),
+            hint: String::from(""),
+        });
+
+        checked.push(Checked {
+            path: PathBuf::from("bbb"),
+            beg: 20,
+            end: 30,
+            state: CheckedState::Pass,
+            name: String::from(""),
+            hint: String::from(""),
+        });
+
+        let path_checked = Printer::collect_by_path(checked);
+
+        assert_eq!(format!("{}", path_checked[0].0.to_string_lossy()), "aaa");
+        assert_eq!(format!("{}", path_checked[1].0.to_string_lossy()), "bbb");
+        assert_eq!(path_checked[0].1[0].beg, 0);
+        assert_eq!(path_checked[0].1[1].beg, 10);
+        assert_eq!(path_checked[1].1[0].beg, 20);
+        assert_eq!(path_checked[1].1[1].beg, 100);
+    }
+}

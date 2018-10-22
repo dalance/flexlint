@@ -1,4 +1,4 @@
-use failure::{Error, ResultExt};
+use failure::{err_msg, Error, ResultExt};
 use lint::{Checked, CheckedState};
 use std::collections::HashMap;
 use std::fs::File;
@@ -55,11 +55,11 @@ impl Printer {
 
     #[cfg_attr(tarpaulin, skip)]
     fn print_simple(
-        path_checked: &Vec<(PathBuf, Vec<Checked>)>,
+        path_checked: &[(PathBuf, Vec<Checked>)],
         verbose: bool,
     ) -> Result<bool, Error> {
         let mut all_pass = true;
-        let mut term = term::stdout().ok_or(format_err!("failed to open terminal"))?;
+        let mut term = term::stdout().ok_or_else(|| err_msg("failed to open terminal"))?;
 
         for (path, checked) in path_checked {
             let mut f = File::open(&path)
@@ -121,7 +121,7 @@ impl Printer {
                         );
 
                         let _ = term.fg(color::BRIGHT_YELLOW);
-                        write!(term, "\thint: {}\n", checked.hint);
+                        writeln!(term, "\thint: {}", checked.hint);
                         let _ = term.reset();
                     }
                 }
@@ -132,11 +132,11 @@ impl Printer {
 
     #[cfg_attr(tarpaulin, skip)]
     fn print_pretty(
-        path_checked: &Vec<(PathBuf, Vec<Checked>)>,
+        path_checked: &[(PathBuf, Vec<Checked>)],
         verbose: bool,
     ) -> Result<bool, Error> {
         let mut all_pass = true;
-        let mut term = term::stdout().ok_or(format_err!("failed to open terminal"))?;
+        let mut term = term::stdout().ok_or_else(|| err_msg("failed to open terminal"))?;
 
         for (path, checked) in path_checked {
             let mut f = File::open(&path)
@@ -190,24 +190,24 @@ impl Printer {
                         let column_len = format!("{}", column).len();
 
                         let _ = term.fg(color::BRIGHT_WHITE);
-                        write!(term, ": {}\n", checked.name);
+                        writeln!(term, ": {}", checked.name);
 
                         let _ = term.fg(color::BRIGHT_BLUE);
                         write!(term, "   -->");
 
                         let _ = term.fg(color::WHITE);
-                        write!(term, " {}:{}:{}\n", path.to_string_lossy(), column, row);
+                        writeln!(term, " {}:{}:{}", path.to_string_lossy(), column, row);
 
                         let _ = term.fg(color::BRIGHT_BLUE);
-                        write!(term, "{}|\n", " ".repeat(column_len + 1));
+                        writeln!(term, "{}|", " ".repeat(column_len + 1));
 
                         let _ = term.fg(color::BRIGHT_BLUE);
                         write!(term, "{} |", column);
 
                         let _ = term.fg(color::WHITE);
-                        write!(
+                        writeln!(
                             term,
-                            " {}\n",
+                            " {}",
                             String::from_utf8_lossy(&s.as_bytes()[last_lf + 1..next_crlf])
                         );
 
@@ -224,9 +224,9 @@ impl Printer {
 
                         if checked.state == CheckedState::Fail {
                             let _ = term.fg(color::BRIGHT_YELLOW);
-                            write!(term, " hint: {}\n\n", checked.hint);
+                            writeln!(term, " hint: {}\n", checked.hint);
                         } else {
-                            write!(term, "\n\n");
+                            writeln!(term, "\n");
                         }
 
                         let _ = term.reset();

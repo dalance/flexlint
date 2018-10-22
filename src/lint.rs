@@ -148,10 +148,10 @@ impl Rule {
             };
 
             let checked = Checked {
-                path: entry.clone().to_path_buf(),
+                path: entry.to_path_buf(),
                 beg: pat_start,
                 end: pat_end,
-                state: state,
+                state,
                 name: self.name.clone(),
                 hint: self.hint.clone(),
             };

@@ -49,6 +49,7 @@ pub struct Rule {
 
     pub includes: Vec<String>,
 
+    #[serde(default)]
     pub excludes: Vec<String>,
 }
 
@@ -220,7 +221,6 @@ forbidden = 'ddd'
 ignore    = 'eee'
 hint      = "fff"
 includes  = ["ggg"]
-excludes  = []
         "#;
 
     static C_RULE: &'static str = r#"
@@ -231,7 +231,6 @@ forbidden = '(?m)(^|[\t ])if\s[^;{]*$'
 ignore    = '(/\*/?([^/]|[^*]/)*\*/)|(//.*\n)'
 hint      = "multiline 'if' must have brace"
 includes  = ["**/*.c", "**/*.cpp"]
-excludes  = []
         "#;
 
     static C_SRC: &'static str = r#"
@@ -265,7 +264,6 @@ required = '(?m)(^|[\t ])if\s*\([^)]*\)\s*begin'
 ignore   = '(/\*/?([^/]|[^*]/)*\*/)|(//.*\n)'
 hint     = "'if' statement must have 'begin'"
 includes = ["**/*.v", "**/*.sv"]
-excludes = []
         "#;
 
     static VERILOG_SRC: &'static str = r#"

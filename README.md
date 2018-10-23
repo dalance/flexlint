@@ -53,7 +53,7 @@ forbidden =  ""   # forbidden pattern by regexp [Optional]
 ignore    =  ""   # ignore pattern by regexp [Optional]
 hint      =  ""   # hint message
 includes  =  [""] # include file globs
-excludes  =  [""] # exclude file globs
+excludes  =  [""] # exclude file globs [Optional]
 ```
 
 If `pattern` is matched, `required` or `forbidden` is tried to match at the `pattern` matched point.
@@ -71,13 +71,15 @@ forbidden = '(?m)(^|[\t ])if\s[^;{]*$'
 ignore    = '(/\*/?([^/]|[^*]/)*\*/)|(//.*\n)'
 hint      = "multiline 'if' must have brace"
 includes  = ["**/*.c", "**/*.cpp"]
-excludes  = []
+excludes  = ["external/*.c"]
 ```
 
 `pattern` is matched `if` keyword and `forbidden` check that `if` must have `;` or `{` until the end of line.
 ( This example don't support some brace-style, you can modify it )
 
 `ignore` is defined to skip single line comment (`// ...`) and multi-line comment (`/* ... */`).
+
+If files matched `includes` match `excludes` too, the files are skipped.
 
 ### Regular expression
 

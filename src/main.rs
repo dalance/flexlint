@@ -1,3 +1,4 @@
+extern crate colored;
 #[macro_use]
 extern crate failure;
 extern crate glob;
@@ -88,7 +89,8 @@ pub fn run_opt(opt: &Opt) -> Result<bool, Error> {
         .with_context(|_| format!("failed to parse toml: '{}'", opt.rule.to_string_lossy()))?;
 
     let checked = rule.check()?;
-    let pass = Printer::print(checked, opt.simple, opt.verbose)?;
+    let mut printer = Printer::new();
+    let pass = printer.print(checked, opt.simple, opt.verbose)?;
 
     Ok(pass)
 }

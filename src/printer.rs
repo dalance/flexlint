@@ -1,10 +1,37 @@
-use failure::{err_msg, Error, ResultExt};
+use colored::*;
+use failure::{Error, ResultExt};
 use lint::{Checked, CheckedState};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 use std::path::PathBuf;
-use term::{self, color};
+use term::{self, color, StdoutTerminal};
+
+// -------------------------------------------------------------------------------------------------
+// Color
+// -------------------------------------------------------------------------------------------------
+
+#[derive(PartialEq)]
+#[allow(dead_code)]
+enum Color {
+    Black,
+    Red,
+    Green,
+    Yellow,
+    Blue,
+    Magenta,
+    Cyan,
+    White,
+    BrightBlack,
+    BrightRed,
+    BrightGreen,
+    BrightYellow,
+    BrightBlue,
+    BrightMagenta,
+    BrightCyan,
+    BrightWhite,
+    Reset,
+}
 
 // -------------------------------------------------------------------------------------------------
 // Printer
@@ -13,17 +40,30 @@ use term::{self, color};
 static CHAR_CR: u8 = 0x0d;
 static CHAR_LF: u8 = 0x0a;
 
-pub struct Printer;
+pub struct Printer {
+    term: Option<Box<StdoutTerminal>>,
+}
 
 impl Printer {
+    pub fn new() -> Printer {
+        Printer {
+            term: term::stdout(),
+        }
+    }
+
     #[cfg_attr(tarpaulin, skip)]
-    pub fn print(checked: Vec<Checked>, simple: bool, verbose: bool) -> Result<bool, Error> {
+    pub fn print(
+        &mut self,
+        checked: Vec<Checked>,
+        simple: bool,
+        verbose: bool,
+    ) -> Result<bool, Error> {
         let path_checked = Printer::collect_by_path(checked);
 
         let all_pass = if simple {
-            Printer::print_simple(&path_checked, verbose)?
+            self.print_simple(&path_checked, verbose)?
         } else {
-            Printer::print_pretty(&path_checked, verbose)?
+            self.print_pretty(&path_checked, verbose)?
         };
 
         Ok(all_pass)
@@ -53,13 +93,64 @@ impl Printer {
         ret
     }
 
+    fn write(&mut self, dat: &str, color: Color) {
+        if let Some(ref mut term) = self.term {
+            let term_color = match color {
+                Color::Black => color::BLACK,
+                Color::Red => color::RED,
+                Color::Green => color::GREEN,
+                Color::Yellow => color::YELLOW,
+                Color::Blue => color::BLUE,
+                Color::Magenta => color::MAGENTA,
+                Color::Cyan => color::CYAN,
+                Color::White => color::WHITE,
+                Color::BrightBlack => color::BRIGHT_BLACK,
+                Color::BrightRed => color::BRIGHT_RED,
+                Color::BrightGreen => color::BRIGHT_GREEN,
+                Color::BrightYellow => color::BRIGHT_YELLOW,
+                Color::BrightBlue => color::BRIGHT_BLUE,
+                Color::BrightMagenta => color::BRIGHT_MAGENTA,
+                Color::BrightCyan => color::BRIGHT_CYAN,
+                Color::BrightWhite => color::BRIGHT_WHITE,
+                Color::Reset => color::BLACK,
+            };
+            if color == Color::Reset {
+                let _ = term.reset();
+            } else {
+                let _ = term.fg(term_color);
+            }
+            write!(term, "{}", dat);
+        } else {
+            let colored = match color {
+                Color::Black => dat.black(),
+                Color::Red => dat.red(),
+                Color::Green => dat.green(),
+                Color::Yellow => dat.yellow(),
+                Color::Blue => dat.blue(),
+                Color::Magenta => dat.magenta(),
+                Color::Cyan => dat.cyan(),
+                Color::White => dat.white(),
+                Color::BrightBlack => dat.bright_black(),
+                Color::BrightRed => dat.bright_red(),
+                Color::BrightGreen => dat.bright_green(),
+                Color::BrightYellow => dat.bright_yellow(),
+                Color::BrightBlue => dat.bright_blue(),
+                Color::BrightMagenta => dat.bright_magenta(),
+                Color::BrightCyan => dat.bright_cyan(),
+                Color::BrightWhite => dat.bright_white(),
+                Color::Reset => dat.clear(),
+            };
+            print!("{}", colored);
+        }
+    }
+
     #[cfg_attr(tarpaulin, skip)]
     fn print_simple(
+        &mut self,
         path_checked: &[(PathBuf, Vec<Checked>)],
         verbose: bool,
     ) -> Result<bool, Error> {
         let mut all_pass = true;
-        let mut term = term::stdout().ok_or_else(|| err_msg("failed to open terminal"))?;
 
         for (path, checked) in path_checked {
             let mut f = File::open(&path)
@@ -96,33 +187,33 @@ impl Printer {
 
                         match checked.state {
                             CheckedState::Pass => {
-                                let _ = term.fg(color::BRIGHT_GREEN);
-                                write!(term, "Pass");
+                                self.write("Pass", Color::BrightGreen);
                             }
                             CheckedState::Fail => {
                                 all_pass = false;
-                                let _ = term.fg(color::BRIGHT_RED);
-                                write!(term, "Fail");
+                                self.write("Fail", Color::BrightRed);
                             }
                             CheckedState::Skip => {
-                                let _ = term.fg(color::BRIGHT_MAGENTA);
-                                write!(term, "Skip");
+                                self.write("Skip", Color::BrightMagenta);
                             }
                         }
 
-                        let _ = term.fg(color::BRIGHT_BLUE);
-                        write!(term, "\t{}:{}:{}", path.to_string_lossy(), column, row);
-
-                        let _ = term.fg(color::WHITE);
-                        write!(
-                            term,
-                            "\t{}",
-                            String::from_utf8_lossy(&s.as_bytes()[pos..next_crlf])
+                        self.write(
+                            &format!("\t{}:{}:{}", path.to_string_lossy(), column, row),
+                            Color::BrightBlue,
                         );
 
-                        let _ = term.fg(color::BRIGHT_YELLOW);
-                        writeln!(term, "\thint: {}", checked.hint);
-                        let _ = term.reset();
+                        self.write(
+                            &format!(
+                                "\t{}",
+                                String::from_utf8_lossy(&s.as_bytes()[pos..next_crlf])
+                            ),
+                            Color::White,
+                        );
+
+                        self.write(&format!("\thint: {}\n", checked.hint), Color::BrightYellow);
+
+                        self.write("", Color::Reset);
                     }
                 }
             }
@@ -132,11 +223,11 @@ impl Printer {
 
     #[cfg_attr(tarpaulin, skip)]
     fn print_pretty(
+        &mut self,
         path_checked: &[(PathBuf, Vec<Checked>)],
         verbose: bool,
     ) -> Result<bool, Error> {
         let mut all_pass = true;
-        let mut term = term::stdout().ok_or_else(|| err_msg("failed to open terminal"))?;
 
         for (path, checked) in path_checked {
             let mut f = File::open(&path)
@@ -173,63 +264,67 @@ impl Printer {
 
                         match checked.state {
                             CheckedState::Pass => {
-                                let _ = term.fg(color::BRIGHT_GREEN);
-                                write!(term, "Pass");
+                                self.write("Pass", Color::BrightGreen);
                             }
                             CheckedState::Fail => {
                                 all_pass = false;
-                                let _ = term.fg(color::BRIGHT_RED);
-                                write!(term, "Fail");
+                                self.write("Fail", Color::BrightRed);
                             }
                             CheckedState::Skip => {
-                                let _ = term.fg(color::BRIGHT_MAGENTA);
-                                write!(term, "Skip");
+                                self.write("Skip", Color::BrightMagenta);
                             }
                         }
 
                         let column_len = format!("{}", column).len();
 
-                        let _ = term.fg(color::BRIGHT_WHITE);
-                        writeln!(term, ": {}", checked.name);
+                        self.write(&format!(": {}\n", checked.name), Color::BrightWhite);
 
-                        let _ = term.fg(color::BRIGHT_BLUE);
-                        write!(term, "   -->");
+                        self.write("   -->", Color::BrightBlue);
 
-                        let _ = term.fg(color::WHITE);
-                        writeln!(term, " {}:{}:{}", path.to_string_lossy(), column, row);
-
-                        let _ = term.fg(color::BRIGHT_BLUE);
-                        writeln!(term, "{}|", " ".repeat(column_len + 1));
-
-                        let _ = term.fg(color::BRIGHT_BLUE);
-                        write!(term, "{} |", column);
-
-                        let _ = term.fg(color::WHITE);
-                        writeln!(
-                            term,
-                            " {}",
-                            String::from_utf8_lossy(&s.as_bytes()[last_lf + 1..next_crlf])
+                        self.write(
+                            &format!(" {}:{}:{}\n", path.to_string_lossy(), column, row),
+                            Color::White,
                         );
 
-                        let _ = term.fg(color::BRIGHT_BLUE);
-                        write!(term, "{}|", " ".repeat(column_len + 1));
+                        self.write(
+                            &format!("{}|\n", " ".repeat(column_len + 1)),
+                            Color::BrightBlue,
+                        );
 
-                        let _ = term.fg(color::BRIGHT_YELLOW);
-                        write!(
-                            term,
-                            " {}{}",
-                            " ".repeat(pos - last_lf - 1),
-                            "^".repeat(checked.end - checked.beg)
+                        self.write(&format!("{} |", column), Color::BrightBlue);
+
+                        self.write(
+                            &format!(
+                                " {}\n",
+                                String::from_utf8_lossy(&s.as_bytes()[last_lf + 1..next_crlf])
+                            ),
+                            Color::White,
+                        );
+
+                        self.write(
+                            &format!("{}|", " ".repeat(column_len + 1)),
+                            Color::BrightBlue,
+                        );
+
+                        self.write(
+                            &format!(
+                                " {}{}",
+                                " ".repeat(pos - last_lf - 1),
+                                "^".repeat(checked.end - checked.beg)
+                            ),
+                            Color::BrightYellow,
                         );
 
                         if checked.state == CheckedState::Fail {
-                            let _ = term.fg(color::BRIGHT_YELLOW);
-                            writeln!(term, " hint: {}\n", checked.hint);
+                            self.write(
+                                &format!(" hint: {}\n\n", checked.hint),
+                                Color::BrightYellow,
+                            );
                         } else {
-                            writeln!(term, "\n");
+                            self.write("\n\n", Color::BrightYellow);
                         }
 
-                        let _ = term.reset();
+                        self.write("", Color::Reset);
                     }
                 }
             }

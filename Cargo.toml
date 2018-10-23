@@ -9,6 +9,7 @@ description = "A flexible linter with rules defined by regular expression"
 categories = ["command-line-utilities", "development-tools"]
 
 [dependencies]
+colored      = "1.6.1"
 failure      = "0.1.2"
 glob         = "0.2.11"
 regex        = "1.0.0"

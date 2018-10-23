@@ -52,7 +52,8 @@ required  =  ""   # required pattern by regexp [Optional]
 forbidden =  ""   # forbidden pattern by regexp [Optional]
 ignore    =  ""   # ignore pattern by regexp [Optional]
 hint      =  ""   # hint message
-globs     =  [""] # file glob
+includes  =  [""] # include file globs
+excludes  =  [""] # exclude file globs
 ```
 
 If `pattern` is matched, `required` or `forbidden` is tried to match at the `pattern` matched point.
@@ -69,7 +70,8 @@ pattern   = '(?m)(^|[\t ])if\s'
 forbidden = '(?m)(^|[\t ])if\s[^;{]*$'
 ignore    = '(/\*/?([^/]|[^*]/)*\*/)|(//.*\n)'
 hint      = "multiline 'if' must have brace"
-globs     = ["**/*.c", "**/*.cpp"]
+includes  = ["**/*.c", "**/*.cpp"]
+excludes  = []
 ```
 
 `pattern` is matched `if` keyword and `forbidden` check that `if` must have `;` or `{` until the end of line.

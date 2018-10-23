@@ -47,7 +47,9 @@ pub struct Rule {
 
     pub hint: String,
 
-    pub globs: Vec<String>,
+    pub includes: Vec<String>,
+
+    pub excludes: Vec<String>,
 }
 
 mod serde_regex {
@@ -82,9 +84,15 @@ impl Rule {
     #[cfg_attr(tarpaulin, skip)]
     pub fn check(&self) -> Result<Vec<Checked>, Error> {
         let mut ret = Vec::new();
-        for g in &self.globs {
+        let excludes = self.gen_excludes()?;
+        for g in &self.includes {
             for entry in glob(&g).with_context(|_| format!("failed to parse glob: '{}'", g))? {
                 let entry = entry?;
+
+                if excludes.contains(&entry) {
+                    continue;
+                }
+
                 let mut f = File::open(&entry)
                     .with_context(|_| format!("failed to open: '{}'", entry.to_string_lossy()))?;
                 let mut s = String::new();
@@ -94,6 +102,17 @@ impl Rule {
                 let mut checked = self.gen_checked(&entry, &s, &ignore);
 
                 ret.append(&mut checked);
+            }
+        }
+        Ok(ret)
+    }
+
+    #[cfg_attr(tarpaulin, skip)]
+    fn gen_excludes(&self) -> Result<Vec<PathBuf>, Error> {
+        let mut ret = Vec::new();
+        for g in &self.excludes {
+            for entry in glob(&g).with_context(|_| format!("failed to parse glob: '{}'", g))? {
+                ret.push(entry?);
             }
         }
         Ok(ret)
@@ -200,7 +219,8 @@ required  = 'ccc'
 forbidden = 'ddd'
 ignore    = 'eee'
 hint      = "fff"
-globs     = ["ggg"]
+includes  = ["ggg"]
+excludes  = []
         "#;
 
     static C_RULE: &'static str = r#"
@@ -210,7 +230,8 @@ pattern   = '(?m)(^|[\t ])if\s'
 forbidden = '(?m)(^|[\t ])if\s[^;{]*$'
 ignore    = '(/\*/?([^/]|[^*]/)*\*/)|(//.*\n)'
 hint      = "multiline 'if' must have brace"
-globs     = ["**/*.c", "**/*.cpp"]
+includes  = ["**/*.c", "**/*.cpp"]
+excludes  = []
         "#;
 
     static C_SRC: &'static str = r#"
@@ -243,7 +264,8 @@ pattern  = '(?m)(^|[\t ])if\s'
 required = '(?m)(^|[\t ])if\s*\([^)]*\)\s*begin'
 ignore   = '(/\*/?([^/]|[^*]/)*\*/)|(//.*\n)'
 hint     = "'if' statement must have 'begin'"
-globs    = ["**/*.v", "**/*.sv"]
+includes = ["**/*.v", "**/*.sv"]
+excludes = []
         "#;
 
     static VERILOG_SRC: &'static str = r#"
@@ -294,7 +316,7 @@ endmodule
             format!("{:?}", Some(Regex::new("eee").unwrap()))
         );
         assert_eq!(rule.rules[0].hint, "fff");
-        assert_eq!(rule.rules[0].globs[0], "ggg");
+        assert_eq!(rule.rules[0].includes[0], "ggg");
     }
 
     #[test]

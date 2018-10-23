@@ -4,7 +4,8 @@ pattern  = '(?m)(^|[\t ])if\s'
 required = '(?m)(^|[\t ])if\s*\([^)]*\)\s*begin'
 ignore   = '(/\*/?([^/]|[^*]/)*\*/)|(//.*\n)'
 hint     = "'if' statement must have 'begin'"
-globs    = ["**/*.v", "**/*.sv"]
+includes = ["**/*.v", "**/*.sv"]
+excludes = []
 
 [[rules]]
 name     = "'else' with 'begin'"
@@ -12,7 +13,8 @@ pattern  = '(?m)(^|[\t ])else\s'
 required = '(?m)(^|[\t ])else\s+(if|begin)'
 ignore   = '(/\*/?([^/]|[^*]/)*\*/)|(//.*\n)'
 hint     = "'else' statement must have 'begin'"
-globs    = ["**/*.v", "**/*.sv"]
+includes = ["**/*.v", "**/*.sv"]
+excludes = []
 
 [[rules]]
 name      = "verilog 'always' forbidden"
@@ -20,7 +22,8 @@ pattern   = '(?m)(^|[\t ])always\s'
 forbidden = '(?m)(^|[\t ])always\s'
 ignore    = '(/\*/?([^/]|[^*]/)*\*/)|(//.*\n)'
 hint      = "'always' must be replaced to 'always_comb'/'always_ff'"
-globs     = ["**/*.v", "**/*.sv"]
+includes  = ["**/*.v", "**/*.sv"]
+excludes  = []
 
 [[rules]]
 name      = "'if' with brace"
@@ -28,4 +31,5 @@ pattern   = '(?m)(^|[\t ])if\s'
 forbidden = '(?m)(^|[\t ])if\s[^;{]*$'
 ignore    = '(/\*/?([^/]|[^*]/)*\*/)|(//.*\n)'
 hint      = "multiline 'if' must have brace"
-globs     = ["**/*.c", "**/*.cpp"]
+includes  = ["**/*.c", "**/*.cpp"]
+excludes  = []

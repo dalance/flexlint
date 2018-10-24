@@ -45,6 +45,7 @@ pub struct Printer {
 }
 
 impl Printer {
+    #[cfg_attr(tarpaulin, skip)]
     pub fn new() -> Printer {
         Printer {
             term: term::stdout(),
@@ -93,6 +94,7 @@ impl Printer {
         ret
     }
 
+    #[cfg_attr(tarpaulin, skip)]
     fn write(&mut self, dat: &str, color: Color) {
         if let Some(ref mut term) = self.term {
             let term_color = match color {

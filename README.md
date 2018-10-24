@@ -60,6 +60,7 @@ If `pattern` is matched, `required` or `forbidden` is tried to match at the `pat
 So `required` pattern is not matched, or `forbidden` pattern is matched, then check is failed.
 `required` and `forbidden` is optional, but if both of them is not defined, check is skipped.
 If the `pattern` matched point is included in the `ignore` matched range, check is skipped.
+If files matched `includes` match `excludes` too, the files are skipped.
 
 The example for `if` with brace of C/C++ is below:
 
@@ -78,8 +79,6 @@ excludes  = ["external/*.c"]
 ( This example don't support some brace-style, you can modify it )
 
 `ignore` is defined to skip single line comment (`// ...`) and multi-line comment (`/* ... */`).
-
-If files matched `includes` match `excludes` too, the files are skipped.
 
 ### Regular expression
 

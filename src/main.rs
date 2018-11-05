@@ -6,7 +6,6 @@ extern crate regex;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
-#[macro_use]
 extern crate structopt;
 extern crate term;
 extern crate toml;
@@ -30,9 +29,9 @@ use structopt::{clap, StructOpt};
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "flexlint")]
-#[structopt(
-    raw(long_version = "option_env!(\"LONG_VERSION\").unwrap_or(env!(\"CARGO_PKG_VERSION\"))")
-)]
+#[structopt(raw(
+    long_version = "option_env!(\"LONG_VERSION\").unwrap_or(env!(\"CARGO_PKG_VERSION\"))"
+))]
 #[structopt(raw(setting = "clap::AppSettings::ColoredHelp"))]
 pub struct Opt {
     /// Rule file

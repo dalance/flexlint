@@ -1,6 +1,7 @@
 use colored::*;
 use failure::{Error, ResultExt};
 use lint::{Checked, CheckedState};
+use std::cmp;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
@@ -312,7 +313,7 @@ impl Printer {
                             &format!(
                                 " {}{}",
                                 " ".repeat(pos - last_lf - 1),
-                                "^".repeat(checked.end - checked.beg)
+                                "^".repeat(cmp::min(checked.end, next_crlf) - checked.beg)
                             ),
                             Color::BrightYellow,
                         );

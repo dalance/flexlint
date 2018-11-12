@@ -21,6 +21,7 @@ use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::process;
+use std::time::SystemTime;
 use structopt::{clap, StructOpt};
 
 // -------------------------------------------------------------------------------------------------
@@ -89,7 +90,7 @@ pub fn run_opt(opt: &Opt) -> Result<bool, Error> {
 
     let checked = rule.check()?;
     let mut printer = Printer::new();
-    let pass = printer.print(checked, opt.simple, opt.verbose)?;
+    let pass = printer.print(checked, opt.simple, opt.verbose, SystemTime::now())?;
 
     Ok(pass)
 }

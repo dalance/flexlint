@@ -1,21 +1,9 @@
-extern crate colored;
-#[macro_use]
-extern crate failure;
-extern crate glob;
-extern crate regex;
-extern crate serde;
-#[macro_use]
-extern crate serde_derive;
-extern crate structopt;
-extern crate term;
-extern crate toml;
-
 mod lint;
 mod printer;
 
-use failure::{Error, ResultExt};
-use lint::RuleSet;
-use printer::Printer;
+use crate::lint::RuleSet;
+use crate::printer::Printer;
+use failure::{format_err, Error, ResultExt};
 use std::env;
 use std::fs::File;
 use std::io::Read;

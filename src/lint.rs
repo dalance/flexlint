@@ -1,6 +1,7 @@
 use failure::{Error, ResultExt};
 use glob::glob;
 use regex::Regex;
+use serde_derive::Deserialize;
 use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};

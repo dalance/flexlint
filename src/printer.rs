@@ -1,6 +1,6 @@
+use crate::lint::{Checked, CheckedState};
 use colored::*;
 use failure::{Error, ResultExt};
-use lint::{Checked, CheckedState};
 use std::cmp;
 use std::collections::HashMap;
 use std::fs::File;
@@ -124,7 +124,7 @@ impl Printer {
             } else {
                 let _ = term.fg(term_color);
             }
-            write!(term, "{}", dat);
+            let _ = write!(term, "{}", dat);
         } else {
             let colored = match color {
                 Color::Black => dat.black(),

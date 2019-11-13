@@ -2,7 +2,7 @@
 
 **flexlint** is a flexible linter with rules defined by regular expression.
 
-[![Build Status](https://travis-ci.org/dalance/flexlint.svg?branch=master)](https://travis-ci.org/dalance/flexlint)
+[![Actions Status](https://github.com/dalance/flexlint/workflows/Regression/badge.svg)](https://github.com/dalance/flexlint/actions)
 [![Crates.io](https://img.shields.io/crates/v/flexlint.svg)](https://crates.io/crates/flexlint)
 [![codecov](https://codecov.io/gh/dalance/flexlint/branch/master/graph/badge.svg)](https://codecov.io/gh/dalance/flexlint)
 

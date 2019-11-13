@@ -179,6 +179,19 @@ impl Rule {
 
             ret.push(checked);
         }
+
+        if ret.is_empty() {
+            let checked = Checked {
+                path: entry.to_path_buf(),
+                beg: 0,
+                end: 0,
+                state: CheckedState::Unmatch,
+                name: String::from(""),
+                hint: String::from(""),
+            };
+            ret.push(checked);
+        }
+
         ret
     }
 }
@@ -202,6 +215,7 @@ pub enum CheckedState {
     Pass,
     Fail,
     Skip,
+    Unmatch,
 }
 
 // -------------------------------------------------------------------------------------------------

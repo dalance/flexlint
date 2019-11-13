@@ -174,6 +174,10 @@ impl Printer {
                 pos += 1;
 
                 for checked in checked.iter() {
+                    if checked.state == CheckedState::Unmatch {
+                        continue;
+                    }
+
                     if checked.beg == pos {
                         if checked.state != CheckedState::Fail && !verbose {
                             continue;
@@ -201,6 +205,7 @@ impl Printer {
                             CheckedState::Skip => {
                                 self.write("Skip", Color::BrightMagenta);
                             }
+                            _ => (),
                         }
 
                         self.write(
@@ -252,6 +257,9 @@ impl Printer {
                 pos += 1;
 
                 for checked in checked.iter() {
+                    if checked.state == CheckedState::Unmatch {
+                        continue;
+                    }
                     if checked.beg == pos {
                         if checked.state != CheckedState::Fail && !verbose {
                             continue;
@@ -279,6 +287,7 @@ impl Printer {
                             CheckedState::Skip => {
                                 self.write("Skip", Color::BrightMagenta);
                             }
+                            _ => (),
                         }
 
                         let column_len = format!("{}", column).len();
@@ -353,7 +362,6 @@ impl Printer {
         );
 
         let cnt_file = path_checked.len();
-        let cnt_checked = path_checked.iter().fold(0, |sum, (_, y)| sum + y.len());
         let cnt_pass = path_checked.iter().fold(0, |sum, (_, y)| {
             sum + y.iter().filter(|x| x.state == CheckedState::Pass).count()
         });
@@ -363,6 +371,7 @@ impl Printer {
         let cnt_skip = path_checked.iter().fold(0, |sum, (_, y)| {
             sum + y.iter().filter(|x| x.state == CheckedState::Skip).count()
         });
+        let cnt_checked = cnt_pass + cnt_fail + cnt_skip;
 
         self.write(&format!("  * Checked files : {}\n", cnt_file), Color::Reset);
         self.write(

@@ -10,7 +10,7 @@ categories = ["command-line-utilities", "development-tools"]
 edition = "2018"
 
 [dependencies]
-colored      = "1.6.1"
+colored      = "2.0.0"
 failure      = "0.1.8"
 glob         = "0.3.0"
 regex        = "1.4.2"

@@ -10,15 +10,15 @@ categories = ["command-line-utilities", "development-tools"]
 edition = "2018"
 
 [dependencies]
-colored      = "2.0.0"
-failure      = "0.1.8"
-glob         = "0.3.0"
-regex        = "1.4.2"
-serde        = "1.0.66"
-serde_derive = "1.0.117"
-structopt    = "0.2.10"
-term         = "0.6.1"
-toml         = "0.5.7"
+colored      = "2"
+failure      = "0.1"
+glob         = "0.3"
+regex        = "1"
+serde        = "1"
+serde_derive = "1"
+structopt    = "0.3"
+term         = "0.6"
+toml         = "0.5"
 
 [package.metadata.release]
 dev-version-ext            = "pre"

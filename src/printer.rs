@@ -171,7 +171,6 @@ impl Printer {
                     column += 1;
                     last_lf = pos;
                 }
-                pos += 1;
 
                 for checked in checked.iter() {
                     if checked.state == CheckedState::Unmatch {
@@ -226,6 +225,7 @@ impl Printer {
                         self.write("", Color::Reset);
                     }
                 }
+                pos += 1;
             }
         }
         Ok(all_pass)
@@ -254,7 +254,6 @@ impl Printer {
                     column += 1;
                     last_lf = pos;
                 }
-                pos += 1;
 
                 for checked in checked.iter() {
                     if checked.state == CheckedState::Unmatch {
@@ -308,23 +307,33 @@ impl Printer {
 
                         self.write(&format!("{} |", column), Color::BrightBlue);
 
+                        let substring = if last_lf ==  next_crlf {
+                            "".into()
+                        } else {
+                            String::from_utf8_lossy(&s.as_bytes()[last_lf + 1..next_crlf]).into_owned()
+                        };
+                        
                         self.write(
-                            &format!(
-                                " {}\n",
-                                String::from_utf8_lossy(&s.as_bytes()[last_lf + 1..next_crlf])
-                            ),
+                            &format!(" {}\n", substring),
                             Color::White,
                         );
+                        
 
                         self.write(
                             &format!("{}|", " ".repeat(column_len + 1)),
                             Color::BrightBlue,
                         );
 
+                        let space_count = if pos > last_lf {
+                            pos - last_lf - 1
+                        } else {
+                            0
+                        };
+
                         self.write(
                             &format!(
                                 " {}{}",
-                                " ".repeat(pos - last_lf - 1),
+                                " ".repeat(space_count),
                                 "^".repeat(cmp::min(checked.end, next_crlf) - checked.beg)
                             ),
                             Color::BrightYellow,
@@ -342,6 +351,7 @@ impl Printer {
                         self.write("", Color::Reset);
                     }
                 }
+                pos += 1;
             }
         }
         let _ = self.print_summary(path_checked, verbose, start_time)?;

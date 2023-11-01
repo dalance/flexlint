@@ -3,7 +3,7 @@ mod printer;
 
 use crate::lint::RuleSet;
 use crate::printer::Printer;
-use failure::{format_err, Error, ResultExt};
+use anyhow::{format_err, Context, Error};
 use std::env;
 use std::fs::File;
 use std::io::Read;
@@ -68,11 +68,11 @@ pub fn run_opt(opt: &Opt) -> Result<bool, Error> {
     let rule = search_rule(&opt.rule)?;
 
     let mut f = File::open(&rule)
-        .with_context(|_| format!("failed to open: '{}'", rule.to_string_lossy()))?;
+        .with_context(|| format!("failed to open: '{}'", rule.to_string_lossy()))?;
     let mut s = String::new();
     let _ = f.read_to_string(&mut s);
     let rule: RuleSet = toml::from_str(&s)
-        .with_context(|_| format!("failed to parse toml: '{}'", opt.rule.to_string_lossy()))?;
+        .with_context(|| format!("failed to parse toml: '{}'", opt.rule.to_string_lossy()))?;
 
     let checked = rule.check()?;
     let mut printer = Printer::new();

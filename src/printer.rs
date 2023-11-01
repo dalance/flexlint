@@ -1,6 +1,6 @@
 use crate::lint::{Checked, CheckedState};
+use anyhow::{Context, Error};
 use colored::*;
-use failure::{Error, ResultExt};
 use std::cmp;
 use std::collections::HashMap;
 use std::fs::File;
@@ -159,7 +159,7 @@ impl Printer {
 
         for (path, checked) in path_checked {
             let mut f = File::open(&path)
-                .with_context(|_| format!("failed to open: '{}'", path.to_string_lossy()))?;
+                .with_context(|| format!("failed to open: '{}'", path.to_string_lossy()))?;
             let mut s = String::new();
             let _ = f.read_to_string(&mut s);
 
@@ -242,7 +242,7 @@ impl Printer {
 
         for (path, checked) in path_checked {
             let mut f = File::open(&path)
-                .with_context(|_| format!("failed to open: '{}'", path.to_string_lossy()))?;
+                .with_context(|| format!("failed to open: '{}'", path.to_string_lossy()))?;
             let mut s = String::new();
             let _ = f.read_to_string(&mut s);
 
@@ -307,28 +307,21 @@ impl Printer {
 
                         self.write(&format!("{} |", column), Color::BrightBlue);
 
-                        let substring = if last_lf ==  next_crlf {
+                        let substring = if last_lf == next_crlf {
                             "".into()
                         } else {
-                            String::from_utf8_lossy(&s.as_bytes()[last_lf + 1..next_crlf]).into_owned()
+                            String::from_utf8_lossy(&s.as_bytes()[last_lf + 1..next_crlf])
+                                .into_owned()
                         };
-                        
-                        self.write(
-                            &format!(" {}\n", substring),
-                            Color::White,
-                        );
-                        
+
+                        self.write(&format!(" {}\n", substring), Color::White);
 
                         self.write(
                             &format!("{}|", " ".repeat(column_len + 1)),
                             Color::BrightBlue,
                         );
 
-                        let space_count = if pos > last_lf {
-                            pos - last_lf - 1
-                        } else {
-                            0
-                        };
+                        let space_count = if pos > last_lf { pos - last_lf - 1 } else { 0 };
 
                         self.write(
                             &format!(

@@ -1,4 +1,4 @@
-use failure::{Error, ResultExt};
+use anyhow::{Context, Error};
 use glob::glob;
 use regex::Regex;
 use serde::Deserialize;
@@ -88,7 +88,7 @@ impl Rule {
         let mut ret = Vec::new();
         let excludes = self.gen_excludes()?;
         for g in &self.includes {
-            for entry in glob(&g).with_context(|_| format!("failed to parse glob: '{}'", g))? {
+            for entry in glob(&g).with_context(|| format!("failed to parse glob: '{}'", g))? {
                 let entry = entry?;
 
                 if excludes.contains(&entry) {
@@ -96,7 +96,7 @@ impl Rule {
                 }
 
                 let mut f = File::open(&entry)
-                    .with_context(|_| format!("failed to open: '{}'", entry.to_string_lossy()))?;
+                    .with_context(|| format!("failed to open: '{}'", entry.to_string_lossy()))?;
                 let mut s = String::new();
                 let _ = f.read_to_string(&mut s);
 
@@ -113,7 +113,7 @@ impl Rule {
     fn gen_excludes(&self) -> Result<Vec<PathBuf>, Error> {
         let mut ret = Vec::new();
         for g in &self.excludes {
-            for entry in glob(&g).with_context(|_| format!("failed to parse glob: '{}'", g))? {
+            for entry in glob(&g).with_context(|| format!("failed to parse glob: '{}'", g))? {
                 ret.push(entry?);
             }
         }

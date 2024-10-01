@@ -4,7 +4,6 @@
 
 [![Actions Status](https://github.com/dalance/flexlint/workflows/Regression/badge.svg)](https://github.com/dalance/flexlint/actions)
 [![Crates.io](https://img.shields.io/crates/v/flexlint.svg)](https://crates.io/crates/flexlint)
-[![codecov](https://codecov.io/gh/dalance/flexlint/branch/master/graph/badge.svg)](https://codecov.io/gh/dalance/flexlint)
 
 ## Install
 Download from [release page](https://github.com/dalance/flexlint/releases/latest), and extract to the directory in PATH.

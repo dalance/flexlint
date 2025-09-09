@@ -16,7 +16,7 @@ glob         = "0.3"
 regex        = "1"
 serde        = {version = "1.0", features = ["derive"]}
 structopt    = "0.3"
-term         = "1.1"
+term         = "1.2"
 toml         = "0.9"
 
 [package.metadata.release]

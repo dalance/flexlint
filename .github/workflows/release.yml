@@ -16,10 +16,9 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - name: Setup Rust
-      uses: hecrj/setup-rust-action@v1
+    - uses: dtolnay/rust-toolchain@stable
       with:
-        rust-version: ${{ matrix.rust }}
+        toolchain: ${{ matrix.rust }}
     - name: Checkout
       uses: actions/checkout@v1
     - name: Setup MUSL
